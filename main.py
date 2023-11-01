@@ -6,7 +6,7 @@ import torch
 from config import Config
 from evaluator import ML_Evaluator,BertEvaluator
 from loader import get_dataloader
-from model import BayesModel,TorchModel
+from model import BayesModel,BertModel
 from optimizer import choose_optimizer,choose_loss
 from utils.save_functions import save_as_json
 
@@ -39,7 +39,7 @@ def train_by_nn(config,verbose=True):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
     train_data,_ = get_dataloader()
-    model = TorchModel(config)
+    model = BertModel(config)
     cuda_flag = torch.cuda.is_available()
     if cuda_flag:
         logger.info("gpu is available, move model to gpu")
@@ -69,8 +69,6 @@ def train_by_nn(config,verbose=True):
             if verbose:
                 logger.info("epoch %d batch %d loss %.4f" % (epoch, index, loss.item()))
 
-            # only for test
-            # break
         if verbose:
             logger.info("epoch %d loss %.4f" % (epoch, np.mean(train_loss)))
         # evaluate

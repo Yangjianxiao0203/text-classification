@@ -19,6 +19,9 @@ Config = {
     "learning_rate": 1e-4,
     "seed":768,
 
+    #for only cnn related
+    "kernel_size": 3,
+
     "optimizer": "adam",
     "loss_fn": "cross_entropy",
 
