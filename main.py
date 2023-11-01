@@ -48,7 +48,7 @@ def choose_model(config):
 def train_by_nn(config,verbose=True,save_model=True):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
-    train_data,_ = get_dataloader(batch_size=config["batch_size"])
+    train_data,_ = get_dataloader(config=config)
     model = choose_model(config)
     cuda_flag = torch.cuda.is_available()
     if cuda_flag:
@@ -57,7 +57,7 @@ def train_by_nn(config,verbose=True,save_model=True):
     optimizer = choose_optimizer(config,model)
     loss_fn = choose_loss(config)
     evaluator = BertEvaluator(model)
-    valid_data,_ = get_dataloader(valid = True,batch_size=config["batch_size"])
+    valid_data,_ = get_dataloader(valid = True,config=config)
     # train
     logger.info("****************start training**************")
     for epoch in range(config["epoch"]):

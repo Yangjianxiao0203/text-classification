@@ -38,9 +38,10 @@ class DataGenerator(Dataset):
         return text,label
 
 class BertVectorGenerator(Dataset):
-    def __init__(self,path):
+    def __init__(self,config,path):
         self.data = load_from_disk(path)
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+        self.config = config
 
     def get_vectorizer(self):
         return None
@@ -62,7 +63,7 @@ class BertVectorGenerator(Dataset):
         encoding = self.tokenizer.encode_plus(
             text,
             add_special_tokens=True,
-            max_length=Config["max_length"],
+            max_length=self.config["max_length"],
             return_token_type_ids=False,
             padding='max_length',
             return_attention_mask=False,
@@ -95,12 +96,14 @@ class BowGenerator(Dataset):
         return x,y
 
 
-def get_dataloader(batch_size=Config["batch_size"], shuffle=True, encoding=Config["encoding"],train=True,valid=False, vectorizer=None):
-    path = Config["train_dir"] if train else Config["test_dir"]
+def get_dataloader(config, shuffle=True,train=True,valid=False, vectorizer=None):
+    path = config["train_dir"] if train else config["test_dir"]
+    encoding = config["encoding"]
+    batch_size = config["batch_size"]
     if valid:
         path = Config["valid_dir"]
     if encoding == "bert":
-        dataset = BertVectorGenerator(path)
+        dataset = BertVectorGenerator(config, path)
     elif encoding == "bow":
         dataset = BowGenerator(path,vectorizer)
     else:
@@ -111,8 +114,3 @@ def get_dataloader(batch_size=Config["batch_size"], shuffle=True, encoding=Confi
 
 if __name__ == '__main__':
     download_dataset()
-    dataloader, _ = get_dataloader(encoding=Config['encoding'],train=True)
-    for x, y in dataloader:
-        print(x.shape)
-        print(y.shape)
-        break
