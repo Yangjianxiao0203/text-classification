@@ -1,0 +1,12 @@
+torch
+torchvision
+tensorflow
+tensorboard
+
+numpy
+pandas
+scikit-learn
+
+sagemaker
+transformers
+datasets
