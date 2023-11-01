@@ -6,6 +6,7 @@ Config = {
     "eval_path":"./eval",
     "pretrain_model_path": r"bert-base-uncased",
 
+
     "encoding":"bert", #bayes will be bow
     "model_type":"bert_cnn",
     "model_with_bert":True,
