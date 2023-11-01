@@ -6,7 +6,7 @@ import torch
 from config import Config
 from evaluator import ML_Evaluator,BertEvaluator
 from loader import get_dataloader
-from model import BayesModel,BertModel
+from model import *
 from optimizer import choose_optimizer,choose_loss
 from utils.save_functions import save_as_json
 
@@ -35,11 +35,19 @@ def train_by_bayes(save_model=True,save_eval=True):
         save_as_json(save_path,save_file,result_json)
     return
 
+def choose_model(config):
+    if config["model_type"] == 'bert':
+        return Bert(config)
+    elif config["model_type"] == 'bert_cnn':
+        return BertCNNModel(config)
+    else:
+        raise ValueError("model type not supported")
+
 def train_by_nn(config,verbose=True):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
     train_data,_ = get_dataloader()
-    model = BertModel(config)
+    model = choose_model(config)
     cuda_flag = torch.cuda.is_available()
     if cuda_flag:
         logger.info("gpu is available, move model to gpu")

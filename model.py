@@ -28,9 +28,9 @@ class BayesModel:
     def predict(self, bow):
         return self.model.predict(bow)
 
-class BertModel(nn.Module):
+class Bert(nn.Module):
     def __init__(self,config):
-        super(BertModel, self).__init__()
+        super(Bert, self).__init__()
         self.config = config
         self.hidden_size = config["hidden_size"]
         self.bert = BertModel.from_pretrained(config["pretrain_model_path"])
@@ -62,9 +62,9 @@ class BertModel(nn.Module):
         y_pred = self.classify(x) # (batch_size, num_classes)
         return y_pred
 
-class CNNModel(nn.Module):
+class BertCNNModel(nn.Module):
     def __init__(self,config):
-        super(CNNModel, self).__init__()
+        super(BertCNNModel, self).__init__()
         self.config = config
         self.hidden_size = config["hidden_size"]
         self.num_layers = config["num_layers"]
@@ -75,8 +75,9 @@ class CNNModel(nn.Module):
             self.hidden_size = self.bert_embedding.config.hidden_size
         self.kernel_size = config["kernel_size"]
         pad = int((self.kernel_size - 1)/2)
+        #input channel = hidden_size, output channel = hidden_size
         self.conv = nn.Conv1d(self.hidden_size, self.hidden_size, self.kernel_size, padding=pad,bias=False)
-        self.classify = nn.Linear(self.hidden_size * 3, self.num_classes)
+        self.classify = nn.Linear(self.hidden_size , self.num_classes)
 
     def forward(self,x):
         '''
@@ -85,6 +86,12 @@ class CNNModel(nn.Module):
         '''
         x = self.bert_embedding(x) # (batch_size, seq_len, hidden_size)
         x= get_bert_last_hidden_state(x)
+        x = x.transpose(1,2) # (batch_size, hidden_size, seq_len) -> batch x channel x seq_len
+        x = self.conv(x) # (batch_size, hidden_size, seq_len)
+        x = x.transpose(1,2) # (batch_size, seq_len, hidden_size)
+        x = x[:, -1, :]  # (batch_size, hidden_size)
+        y_pred = self.classify(x) # (batch_size, num_classes)
+        return y_pred
 
 
 
