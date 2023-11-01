@@ -2,6 +2,7 @@ torch
 torchvision
 tensorflow
 tensorboard
+chardet
 
 numpy
 pandas
@@ -10,3 +11,5 @@ scikit-learn
 sagemaker
 transformers
 datasets
+
+json

@@ -1,8 +1,19 @@
 from sklearn.naive_bayes import MultinomialNB
 import torch
 import torch.nn as nn
-from transformers import BertModel
+from transformers import BertModel,BertConfig
+import json
 
+def load_bert(pretrain_path, config_path=None):
+    if config_path is None:
+        model = BertModel.from_pretrained(pretrain_path)
+        return model
+    with open(config_path) as f:
+        config_dict = json.load(f)
+    custom_config = BertConfig(**config_dict)
+    model = BertModel.from_pretrained(pretrain_path, config=custom_config)
+    return model
+    
 def get_bert_last_hidden_state(x):
     if isinstance(x, tuple):
         x = x[0]
@@ -33,7 +44,8 @@ class Bert(nn.Module):
         super(Bert, self).__init__()
         self.config = config
         self.hidden_size = config["hidden_size"]
-        self.bert = BertModel.from_pretrained(config["pretrain_model_path"])
+        # self.bert = BertModel.from_pretrained(config["pretrain_model_path"])
+        self.bert = load_bert(config["pretrain_model_path"], config["bert_config"])
         if config["model_with_bert"] :
             self.hidden_size = self.bert.config.hidden_size
         self.num_layers = config["num_layers"]
@@ -49,14 +61,6 @@ class Bert(nn.Module):
         '''
         x = self.bert(x) # (batch_size, seq_len, hidden_size)
         x = get_bert_last_hidden_state(x)
-        # if isinstance(x, tuple):
-        #     x = x[0]
-        # elif not isinstance(x, torch.Tensor):
-        #     try:
-        #         x = x.last_hidden_state  # for bert
-        #     except:
-        #         raise ValueError('x must be tuple or tensor')
-
         # get last hidden state
         x = x[:, -1, :]  # (batch_size, hidden_size)
         y_pred = self.classify(x) # (batch_size, num_classes)
@@ -70,7 +74,7 @@ class BertCNNModel(nn.Module):
         self.num_layers = config["num_layers"]
         self.num_classes = config["num_classes"]
         # with bert embedding
-        self.bert_embedding = BertModel.from_pretrained(config["pretrain_model_path"]) # batch x seq_len x bert_embedding.config.hidden_size ->768
+        self.bert_embedding = load_bert(config["pretrain_model_path"], config["bert_config"]) # batch x seq_len x bert_embedding.config.hidden_size ->768
         if config["model_with_bert"] :
             self.hidden_size = self.bert_embedding.config.hidden_size
         self.kernel_size = config["kernel_size"]

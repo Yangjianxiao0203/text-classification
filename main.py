@@ -9,6 +9,7 @@ from loader import get_dataloader
 from model import *
 from optimizer import choose_optimizer,choose_loss
 from utils.save_functions import save_as_json
+from torch.utils.tensorboard import SummaryWriter
 
 import logging
 logging.basicConfig(level=logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -19,6 +20,7 @@ random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
+writer = SummaryWriter()
 
 def train_by_bayes(save_model=True,save_eval=True):
     train_data,vector = get_dataloader()
@@ -74,13 +76,15 @@ def train_by_nn(config,verbose=True):
             optimizer.step()
             train_loss.append(loss.item())
 
-            if verbose:
+            if verbose and index % 100 == 0:
                 logger.info("epoch %d batch %d loss %.4f" % (epoch, index, loss.item()))
 
         if verbose:
             logger.info("epoch %d loss %.4f" % (epoch, np.mean(train_loss)))
+            writer.add_scalar('train_loss', np.mean(train_loss), epoch)
         # evaluate
         acc = evaluator.evaluate(valid_data)
+        writer.add_scalar('valid_acc', acc, epoch)
         if verbose:
             logger.info("epoch %d acc %.4f" % (epoch, acc))
 
