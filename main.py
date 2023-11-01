@@ -8,7 +8,7 @@ from evaluator import ML_Evaluator,BertEvaluator
 from loader import get_dataloader
 from model import *
 from optimizer import choose_optimizer,choose_loss
-from utils.save_functions import save_as_json
+from utils.save_functions import save_as_json,save_results_to_json
 from torch.utils.tensorboard import SummaryWriter
 
 import logging
@@ -45,10 +45,10 @@ def choose_model(config):
     else:
         raise ValueError("model type not supported")
 
-def train_by_nn(config,verbose=True):
+def train_by_nn(config,verbose=True,save_model=True):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
-    train_data,_ = get_dataloader()
+    train_data,_ = get_dataloader(batch_size=config["batch_size"])
     model = choose_model(config)
     cuda_flag = torch.cuda.is_available()
     if cuda_flag:
@@ -57,8 +57,9 @@ def train_by_nn(config,verbose=True):
     optimizer = choose_optimizer(config,model)
     loss_fn = choose_loss(config)
     evaluator = BertEvaluator(model)
-    valid_data,_ = get_dataloader(valid = True)
+    valid_data,_ = get_dataloader(valid = True,batch_size=config["batch_size"])
     # train
+    logger.info("****************start training**************")
     for epoch in range(config["epoch"]):
         model.train()
 
@@ -83,20 +84,66 @@ def train_by_nn(config,verbose=True):
             logger.info("epoch %d loss %.4f" % (epoch, np.mean(train_loss)))
             writer.add_scalar('train_loss', np.mean(train_loss), epoch)
         # evaluate
-        acc = evaluator.evaluate(valid_data)
+        # acc = evaluator.evaluate(valid_data)
+        '''
+        results = {
+            "f1_score": f1,
+            "recall": recall,
+            "precision": precision,
+            "accuracy": accuracy
+        }
+        '''
+        results = evaluator.evaluate(valid_data) 
+        acc  = results["accuracy"]
+        f1 = results["f1_score"]
+        recall = results["recall"]
+        precision = results["precision"]
+        
         writer.add_scalar('valid_acc', acc, epoch)
+        writer.add_scalar('valid_f1', f1, epoch)
+        writer.add_scalar('valid_recall', recall, epoch)
+        writer.add_scalar('valid_precision', precision, epoch)
         if verbose:
             logger.info("epoch %d acc %.4f" % (epoch, acc))
+            logger.info("epoch %d f1 %.4f" % (epoch, f1))
+            logger.info("epoch %d recall %.4f" % (epoch, recall))
+            logger.info("epoch %d precision %.4f" % (epoch, precision))
+    
+    save_file_header = config["model_type"]+"_b_"+str(config["batch_size"]) + "_lr_" + str(Config["learning_rate"])
+    if save_model:
+        save_path = config["model_path"]
+        model_save_path = os.path.join(save_path, save_file_header + "_epoch_" + str(epoch) + ".pt")
+        torch.save(model.state_dict(), model_save_path)
+        logger.info(f"Model saved to {model_save_path}")
 
-    return acc
+    return results
 
 
 
 def train(Config):
     if Config["model_type"] == "bayes":
-        train_by_bayes()
+        return train_by_bayes()
     else:
-        train_by_nn(Config)
+        return train_by_nn(Config)
 
 if __name__=='__main__':
-    train(Config)
+    # train(Config)
+    
+    # grid search
+    models = ["bert_cnn", "bert"]
+    batch_sizes = [32, 64]
+    learning_rates = [1e-3, 1e-4]
+    max_lengths = [64, 128, 256]
+    
+    for model in models:
+        for batch_size in batch_sizes:
+            for learning_rate in learning_rates:
+                for max_length in max_lengths:
+                    Config["model_type"] = model
+                    Config["batch_size"] = batch_size
+                    Config["learning_rate"] = learning_rate
+                    Config["max_length"] = max_length
+                    logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}")
+                    results = train_by_nn(Config)
+                    save_results_to_json(results, Config)
+    

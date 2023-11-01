@@ -2,3 +2,4 @@
 /bert-base-uncased/
 /__pycache__/
 bucket_pass
+/runs/
