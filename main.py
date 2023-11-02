@@ -128,7 +128,7 @@ if __name__=='__main__':
     batch_sizes = [64, 32]
     learning_rates = [1e-4]
     max_lengths = [64]
-    num_layers = [1,2]
+    num_layers = [1,2,3]
 
     for model in models:
         for batch_size in batch_sizes:
@@ -142,6 +142,9 @@ if __name__=='__main__':
                         Config["max_length"] = max_length
                         logger.info("****************start training**************")
                         logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}, num_layer: {num_layer}")
+                        if model == 'bert' and num_layer != 1:
+                            logger.info("skip this config")
+                            continue
                         results = train_by_nn(Config)
                         if Debug:
                             break

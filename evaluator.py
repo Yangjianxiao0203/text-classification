@@ -52,9 +52,9 @@ class BertEvaluator:
         self.model = model
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.model.to(self.device)
-        self.model.eval()
 
     def evaluate(self, dataloader):
+        self.model.eval()
         all_predictions = []
         all_true_labels = []
 
