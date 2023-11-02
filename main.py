@@ -8,8 +8,9 @@ from evaluator import ML_Evaluator,BertEvaluator
 from loader import get_dataloader
 from model import *
 from optimizer import choose_optimizer,choose_loss
-from utils.save_functions import save_as_json,save_results_to_json
+from utils.save_functions import save_as_json, save_results_to_json, save_all_json_to_csv,save_results_to_csv
 from torch.utils.tensorboard import SummaryWriter
+from utils.logging import log_and_write_metrics
 
 import logging
 logging.basicConfig(level=logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -21,6 +22,8 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
 writer = SummaryWriter()
+
+Debug = Config['debug_mode']
 
 def train_by_bayes(save_model=True,save_eval=True):
     train_data,vector = get_dataloader()
@@ -58,6 +61,7 @@ def train_by_nn(config,verbose=True,save_model=True):
     loss_fn = choose_loss(config)
     evaluator = BertEvaluator(model)
     valid_data,_ = get_dataloader(valid = True,config=config)
+    test_data, _ = get_dataloader(train=False, config=config)
     # train
     logger.info("****************start training**************")
     for epoch in range(config["epoch"]):
@@ -79,6 +83,8 @@ def train_by_nn(config,verbose=True,save_model=True):
 
             if verbose and index % 50 == 0:
                 logger.info("epoch %d batch %d loss %.4f" % (epoch, index, loss.item()))
+            if Debug:
+                break
 
         if verbose:
             logger.info("epoch %d loss %.4f" % (epoch, np.mean(train_loss)))
@@ -93,28 +99,19 @@ def train_by_nn(config,verbose=True,save_model=True):
             "accuracy": accuracy
         }
         '''
-        results = evaluator.evaluate(valid_data) 
-        acc  = results["accuracy"]
-        f1 = results["f1_score"]
-        recall = results["recall"]
-        precision = results["precision"]
-        
-        writer.add_scalar('valid_acc', acc, epoch)
-        writer.add_scalar('valid_f1', f1, epoch)
-        writer.add_scalar('valid_recall', recall, epoch)
-        writer.add_scalar('valid_precision', precision, epoch)
-        if verbose:
-            logger.info("epoch %d acc %.4f" % (epoch, acc))
-            logger.info("epoch %d f1 %.4f" % (epoch, f1))
-            logger.info("epoch %d recall %.4f" % (epoch, recall))
-            logger.info("epoch %d precision %.4f" % (epoch, precision))
-    
+        results = evaluator.evaluate(valid_data)
+        log_and_write_metrics(writer, logger, results, epoch, verbose,data_type="valid")
+
     save_file_header = config["model_type"]+"_b_"+str(config["batch_size"]) + "_lr_" + str(Config["learning_rate"])
     if save_model:
         save_path = config["model_path"]
         model_save_path = os.path.join(save_path, save_file_header + "_epoch_" + str(epoch) + ".pt")
         torch.save(model.state_dict(), model_save_path)
         logger.info(f"Model saved to {model_save_path}")
+
+    # evaluate on test data
+    results = evaluator.evaluate(test_data)
+    log_and_write_metrics(writer, logger, results, epoch, verbose,data_type="test")
 
     return results
 
@@ -146,4 +143,7 @@ if __name__=='__main__':
                     logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}")
                     results = train_by_nn(Config)
                     save_results_to_json(results, Config)
+                    save_results_to_csv(results, Config)
+
+    logger.info("****************finish training**************")
     

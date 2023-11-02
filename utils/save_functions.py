@@ -1,5 +1,6 @@
 import json
 import os
+import csv
 def save_as_json(path,file_name,data):
     save_path = os.path.join(path,file_name)
     # Ensure the directory exists
@@ -17,7 +18,6 @@ def save_as_json(path,file_name,data):
 
 def save_results_to_json(results, config):
     save_dir = config['eval_path']
-    # 确保保存结果的目录存在
     if not os.path.isdir(save_dir):
         os.mkdir(save_dir)
     # 定义文件名，包含实验条件
@@ -31,3 +31,76 @@ def save_results_to_json(results, config):
     }
     with open(filepath, 'w') as f:
         json.dump(data_to_save, f, indent=4)
+    return
+
+import csv
+
+def save_results_to_csv(results, config, output_csv):
+    # 提取所需的参数
+    model_type = config['model_type']
+    epoch = config['epoch']
+    num_layers = config['num_layers']
+    max_length = config['max_length']
+    hidden_size = config['hidden_size']
+    batch_size = config['batch_size']
+    learning_rate = config['learning_rate']
+    acc = results['accuracy']
+    f1_score = results['f1_score']
+    recall = results['recall']
+    precision = results['precision']
+
+    # 创建或打开一个csv文件，准备写入数据
+    with open(output_csv, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        # 检查文件是否为空，如果为空，写入标题行
+        if file.tell() == 0:
+            writer.writerow(['model_type', 'epoch', 'num_layers', 'max_length', 'hidden_size',
+                             'batch_size', 'learning_rate', 'acc', 'f1_score', 'recall', 'precision'])
+        writer.writerow([model_type, epoch, num_layers, max_length, hidden_size,
+                         batch_size, learning_rate, acc, f1_score, recall, precision])
+    return
+def save_all_json_to_csv(output_dir, output_csv):
+    # 获取output文件夹中所有的json文件
+    json_files = [f for f in os.listdir(output_dir) if f.endswith('.json')]
+
+    # 创建或打开一个csv文件，准备写入数据
+    with open(output_csv, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        # 写入标题行
+        writer.writerow(['model_type', 'epoch', 'num_layers', 'max_length', 'hidden_size',
+                         'batch_size', 'learning_rate', 'acc', 'f1_score', 'recall', 'precision'])
+
+        # 遍历每个json文件
+        for json_file in json_files:
+            with open(f'{output_dir}/{json_file}', 'r', encoding='utf-8') as j_file:
+                data = json.load(j_file)
+                try:
+                    config = data['config']
+                    results = data['results']
+                except (KeyError, TypeError):
+                    print(f"Error processing file: {json_file}")
+                    continue
+
+                # 提取所需的参数
+                model_type = config['model_type']
+                epoch = config['epoch']
+                num_layers = config['num_layers']
+                max_length = config['max_length']
+                hidden_size = config['hidden_size']
+                batch_size = config['batch_size']
+                learning_rate = config['learning_rate']
+                acc = results['accuracy']
+                f1_score = results['f1_score']
+                recall = results['recall']
+                precision = results['precision']
+
+                # 写入csv文件
+                writer.writerow([model_type, epoch, num_layers, max_length, hidden_size,
+                                 batch_size, learning_rate, acc, f1_score, recall, precision])
+    return
+
+def save_results_to_csv(results, config):
+    pass
+
+
+

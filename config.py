@@ -26,4 +26,6 @@ Config = {
     "optimizer": "adam",
     "loss_fn": "cross_entropy",
 
+    "debug_mode":True,
+
 }
