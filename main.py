@@ -41,18 +41,6 @@ def train_by_bayes(config,save_model=True,save_eval=True):
         save_as_json(save_path,save_file,result_json)
     return
 
-def choose_model(config):
-    if config["model_type"] == 'bert':
-        return Bert(config)
-    elif config["model_type"] == 'bert_cnn':
-        return BertCNNModel(config)
-    elif config["model_type"] == 'bert_cnn_heavy':
-        return BertCNNHeavyModel(config)
-    elif config["model_type"] == 'bert_lstm':
-        return BertLstmModel(config)
-    else:
-        raise ValueError("model type not supported")
-
 def train_by_nn(config,verbose=True,save_model=False):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
@@ -72,7 +60,6 @@ def train_by_nn(config,verbose=True,save_model=False):
     if Debug:
         epochs = 1
     # train
-    logger.info("****************start training**************")
     for epoch in range(epochs):
         model.train()
 
@@ -115,6 +102,17 @@ def train_by_nn(config,verbose=True,save_model=False):
     return results
 
 
+def choose_model(config):
+    if config["model_type"] == 'bert':
+        return Bert(config)
+    elif config["model_type"] == 'bert_cnn':
+        return BertCNNModel(config)
+    elif config["model_type"] == 'bert_cnn_heavy':
+        return BertCNNHeavyModel(config)
+    elif config["model_type"] == 'bert_lstm':
+        return BertLstmModel(config)
+    else:
+        raise ValueError("model type not supported")
 
 def train(Config):
     if Config["model_type"] == "bayes":
@@ -123,29 +121,33 @@ def train(Config):
         return train_by_nn(Config)
 
 if __name__=='__main__':
-    train(Config)
+    # train(Config)
     
-    # # grid search
-    # models = ["bert","bert_cnn"]
-    # batch_sizes = [64, 32]
-    # learning_rates = [1e-3, 1e-4]
-    # max_lengths = [64,128,256]
-    #
-    # for model in models:
-    #     for batch_size in batch_sizes:
-    #         for learning_rate in learning_rates:
-    #             for max_length in max_lengths:
-    #                 Config["model_type"] = model
-    #                 Config["batch_size"] = batch_size
-    #                 Config["learning_rate"] = learning_rate
-    #                 Config["max_length"] = max_length
-    #                 logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}")
-    #                 results = train_by_nn(Config)
-    #                 if Debug:
-    #                     break
-    #                 save_results_to_json(results, Config)
-    #                 save_results_to_csv(results, Config)
-    #                 logger.info("save file to json and csv")
+    # grid search
+    models = ["bert_cnn_heavy","bert","bert_lstm"]
+    batch_sizes = [64, 32]
+    learning_rates = [1e-4]
+    max_lengths = [64]
+    num_layers = [1,2]
+
+    for model in models:
+        for batch_size in batch_sizes:
+            for learning_rate in learning_rates:
+                for max_length in max_lengths:
+                    for num_layer in num_layers:
+                        Config["num_layers"] = num_layer
+                        Config["model_type"] = model
+                        Config["batch_size"] = batch_size
+                        Config["learning_rate"] = learning_rate
+                        Config["max_length"] = max_length
+                        logger.info("****************start training**************")
+                        logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}, num_layer: {num_layer}")
+                        results = train_by_nn(Config)
+                        if Debug:
+                            break
+                        save_results_to_json(results, Config)
+                        save_results_to_csv(results, Config)
+                        logger.info("save file to json and csv")
 
     logger.info("****************finish training**************")
     
