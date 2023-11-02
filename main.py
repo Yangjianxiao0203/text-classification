@@ -46,13 +46,17 @@ def choose_model(config):
         return Bert(config)
     elif config["model_type"] == 'bert_cnn':
         return BertCNNModel(config)
+    elif config["model_type"] == 'bert_cnn_heavy':
+        return BertCNNHeavyModel(config)
+    elif config["model_type"] == 'bert_lstm':
+        return BertLstmModel(config)
     else:
         raise ValueError("model type not supported")
 
 def train_by_nn(config,verbose=True,save_model=False):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
-    train_data,_ = get_dataloader(config=config)
+    train_data, _ = get_dataloader(config=config)
     model = choose_model(config)
     cuda_flag = torch.cuda.is_available()
     if cuda_flag:
