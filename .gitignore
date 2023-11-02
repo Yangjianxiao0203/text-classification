@@ -3,3 +3,5 @@
 /__pycache__/
 bucket_pass
 /runs/
+/output/
+/.idea/

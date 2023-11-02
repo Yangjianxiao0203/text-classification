@@ -11,7 +11,7 @@ Config = {
     "model_type":"bert_cnn",
     "model_with_bert":True,
 
-    "epoch": 5,
+    "epoch": 8,
     "num_layers": 1,
     "max_length": 128,
     "hidden_size": 128,

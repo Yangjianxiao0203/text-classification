@@ -31,4 +31,3 @@ def save_results_to_json(results, config):
     }
     with open(filepath, 'w') as f:
         json.dump(data_to_save, f, indent=4)
-    logger.info(f"Results saved to {filepath}")

@@ -77,7 +77,7 @@ def train_by_nn(config,verbose=True,save_model=True):
             optimizer.step()
             train_loss.append(loss.item())
 
-            if verbose and index % 100 == 0:
+            if verbose and index % 50 == 0:
                 logger.info("epoch %d batch %d loss %.4f" % (epoch, index, loss.item()))
 
         if verbose:
@@ -133,7 +133,7 @@ if __name__=='__main__':
     models = ["bert_cnn", "bert"]
     batch_sizes = [32, 64]
     learning_rates = [1e-3, 1e-4]
-    max_lengths = [64, 128, 256]
+    max_lengths = [64,128,256]
     
     for model in models:
         for batch_size in batch_sizes:

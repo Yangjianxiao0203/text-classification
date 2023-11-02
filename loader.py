@@ -65,6 +65,7 @@ class BertVectorGenerator(Dataset):
             add_special_tokens=True,
             max_length=self.config["max_length"],
             return_token_type_ids=False,
+            truncation=True,
             padding='max_length',
             return_attention_mask=False,
             return_tensors='pt',
