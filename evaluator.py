@@ -69,10 +69,17 @@ class BertEvaluator:
                 all_predictions.extend(predicted.cpu().numpy())
                 all_true_labels.extend(labels.cpu().numpy())
 
-        accuracy = self._compute_accuracy(all_predictions, all_true_labels)
-        return accuracy
+        f1 = f1_score(all_true_labels, all_predictions, average='macro')
+        recall = recall_score(all_true_labels, all_predictions, average='macro')
+        precision = precision_score(all_true_labels, all_predictions, average='macro')
+        accuracy = accuracy_score(all_true_labels, all_predictions)
+        # Combine metrics in a dictionary
+        results = {
+            "f1_score": f1,
+            "recall": recall,
+            "precision": precision,
+            "accuracy": accuracy
+        }
 
-    def _compute_accuracy(self, preds, labels):
-        correct = sum(p == l for p, l in zip(preds, labels))
-        return correct / len(labels)
+        return results
 

@@ -1,17 +1,17 @@
 Config = {
-    "train_dir":"./s3/data/emotion_data/train",
-    "test_dir":"./s3/data/emotion_data/test",
-    "valid_dir":"./s3/data/emotion_data/validation",
+    "train_dir":"./data/train",
+    "test_dir":"./data/test",
+    "valid_dir":"./data/validation",
     "model_path":"./output",
     "eval_path":"./eval",
     "pretrain_model_path": r"bert-base-uncased",
     "bert_config": "bert_config.json",
 
     "encoding":"bert", #bayes will be bow
-    "model_type":"bert",
+    "model_type":"bert_cnn",
     "model_with_bert":True,
 
-    "epoch": 2,
+    "epoch": 8,
     "num_layers": 1,
     "max_length": 128,
     "hidden_size": 128,
