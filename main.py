@@ -25,17 +25,18 @@ writer = SummaryWriter()
 
 Debug = Config['debug_mode']
 
-def train_by_bayes(save_model=True,save_eval=True):
-    train_data,vector = get_dataloader()
+#TODO: 1.增加模型，2.让num layers有用，加入dropout 3. 用LoRA微调bert 4. 用自己的embedding
+def train_by_bayes(config,save_model=True,save_eval=True):
+    train_data,vector = get_dataloader(config)
     model = BayesModel()
     model.fit(train_data)
 
     # evaluate
     evaluator = ML_Evaluator(model, None)
-    test_loader,_ = get_dataloader(train=False, vectorizer=vector)
+    test_loader,_ = get_dataloader(config,train=False, vectorizer=vector)
     result_json = evaluator.evaluate(test_loader)
     if save_eval:
-        save_path = Config["eval_path"]
+        save_path = config["eval_path"]
         save_file = "bayes_eval.json"
         save_as_json(save_path,save_file,result_json)
     return
@@ -93,16 +94,6 @@ def train_by_nn(config,verbose=True,save_model=False):
         if verbose:
             logger.info("epoch %d loss %.4f" % (epoch, np.mean(train_loss)))
             writer.add_scalar('train_loss', np.mean(train_loss), epoch)
-        # evaluate
-        # acc = evaluator.evaluate(valid_data)
-        '''
-        results = {
-            "f1_score": f1,
-            "recall": recall,
-            "precision": precision,
-            "accuracy": accuracy
-        }
-        '''
         results = evaluator.evaluate(valid_data)
         log_and_write_metrics(writer, logger, results, epoch, verbose,data_type="valid")
 
@@ -123,32 +114,34 @@ def train_by_nn(config,verbose=True,save_model=False):
 
 def train(Config):
     if Config["model_type"] == "bayes":
-        return train_by_bayes()
+        return train_by_bayes(Config)
     else:
         return train_by_nn(Config)
 
 if __name__=='__main__':
-    # train(Config)
+    train(Config)
     
-    # grid search
-    models = ["bert","bert_cnn"]
-    batch_sizes = [64, 32]
-    learning_rates = [1e-3, 1e-4]
-    max_lengths = [64,128,256]
-    
-    for model in models:
-        for batch_size in batch_sizes:
-            for learning_rate in learning_rates:
-                for max_length in max_lengths:
-                    Config["model_type"] = model
-                    Config["batch_size"] = batch_size
-                    Config["learning_rate"] = learning_rate
-                    Config["max_length"] = max_length
-                    logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}")
-                    results = train_by_nn(Config)
-                    save_results_to_json(results, Config)
-                    save_results_to_csv(results, Config)
-                    logger.info("save file to json and csv")
+    # # grid search
+    # models = ["bert","bert_cnn"]
+    # batch_sizes = [64, 32]
+    # learning_rates = [1e-3, 1e-4]
+    # max_lengths = [64,128,256]
+    #
+    # for model in models:
+    #     for batch_size in batch_sizes:
+    #         for learning_rate in learning_rates:
+    #             for max_length in max_lengths:
+    #                 Config["model_type"] = model
+    #                 Config["batch_size"] = batch_size
+    #                 Config["learning_rate"] = learning_rate
+    #                 Config["max_length"] = max_length
+    #                 logger.info(f"model_type: {model}, batch_size: {batch_size}, learning_rate: {learning_rate}, max_length: {max_length}")
+    #                 results = train_by_nn(Config)
+    #                 if Debug:
+    #                     break
+    #                 save_results_to_json(results, Config)
+    #                 save_results_to_csv(results, Config)
+    #                 logger.info("save file to json and csv")
 
     logger.info("****************finish training**************")
     

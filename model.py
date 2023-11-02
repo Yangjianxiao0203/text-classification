@@ -45,9 +45,9 @@ class Bert(nn.Module):
         self.config = config
         self.hidden_size = config["hidden_size"]
         # self.bert = BertModel.from_pretrained(config["pretrain_model_path"])
-        self.bert = load_bert(config["pretrain_model_path"], config["bert_config"])
+        self.bert_embedding = load_bert(config["pretrain_model_path"], config["bert_config"])
         if config["model_with_bert"] :
-            self.hidden_size = self.bert.config.hidden_size
+            self.hidden_size = self.bert_embedding.config.hidden_size
         self.num_layers = config["num_layers"]
         self.num_classes = config["num_classes"]
         self.classify = nn.Linear(self.hidden_size, self.num_classes)
@@ -59,7 +59,7 @@ class Bert(nn.Module):
         :param x: batch_size, seq_len
         :return: batch_size, num_classes
         '''
-        x = self.bert(x) # (batch_size, seq_len, hidden_size)
+        x = self.bert_embedding(x) # (batch_size, seq_len, hidden_size)
         x = get_bert_last_hidden_state(x)
         # get last hidden state
         x = x[:, -1, :]  # (batch_size, hidden_size)
@@ -97,6 +97,16 @@ class BertCNNModel(nn.Module):
         y_pred = self.classify(x) # (batch_size, num_classes)
         return y_pred
 
-
-
-
+class BertLstm(nn.Module):
+    #TODO:  完善他，num_layers 放在lstm中，看看要不要加dropout
+    def __init__(self,config):
+        super(BertLstm, self).__init__()
+        self.config = config
+        self.hidden_size = config["hidden_size"]
+        self.num_layers = config["num_layers"]
+        self.num_classes = config["num_classes"]
+        # with bert embedding
+        self.bert_embedding = load_bert(config["pretrain_model_path"], config["bert_config"])
+        if config["model_with_bert"] :
+            self.hidden_size = self.bert_embedding.config.hidden_size
+        self.lstm = nn.LSTM(self.hidden_size, self.hidden_size, self.num_layers, batch_first=True)

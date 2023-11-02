@@ -9,9 +9,9 @@ Config = {
     "pretrain_model_path": r"bert-base-uncased",
     "bert_config": "bert_config.json",
 
-    "encoding":"bert", #bayes will be bow
-    "model_type":"bert_cnn",
-    "model_with_bert":True,
+    "encoding":"bert", #bayes will be bow, deep learning will be bert
+    "model_type":"bayes",
+    "model_with_bert":False,
 
     "epoch": 8,
     "num_layers": 1,
