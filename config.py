@@ -4,6 +4,8 @@ Config = {
     "valid_dir":"./data/validation",
     "model_path":"./output",
     "eval_path":"./eval",
+    "output_csv":"result.csv",
+
     "pretrain_model_path": r"bert-base-uncased",
     "bert_config": "bert_config.json",
 

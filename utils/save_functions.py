@@ -33,32 +33,6 @@ def save_results_to_json(results, config):
         json.dump(data_to_save, f, indent=4)
     return
 
-import csv
-
-def save_results_to_csv(results, config, output_csv):
-    # 提取所需的参数
-    model_type = config['model_type']
-    epoch = config['epoch']
-    num_layers = config['num_layers']
-    max_length = config['max_length']
-    hidden_size = config['hidden_size']
-    batch_size = config['batch_size']
-    learning_rate = config['learning_rate']
-    acc = results['accuracy']
-    f1_score = results['f1_score']
-    recall = results['recall']
-    precision = results['precision']
-
-    # 创建或打开一个csv文件，准备写入数据
-    with open(output_csv, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        # 检查文件是否为空，如果为空，写入标题行
-        if file.tell() == 0:
-            writer.writerow(['model_type', 'epoch', 'num_layers', 'max_length', 'hidden_size',
-                             'batch_size', 'learning_rate', 'acc', 'f1_score', 'recall', 'precision'])
-        writer.writerow([model_type, epoch, num_layers, max_length, hidden_size,
-                         batch_size, learning_rate, acc, f1_score, recall, precision])
-    return
 def save_all_json_to_csv(output_dir, output_csv):
     # 获取output文件夹中所有的json文件
     json_files = [f for f in os.listdir(output_dir) if f.endswith('.json')]
@@ -100,7 +74,32 @@ def save_all_json_to_csv(output_dir, output_csv):
     return
 
 def save_results_to_csv(results, config):
-    pass
+    output_csv = config['output_csv']
+    # 提取所需的参数
+    model_type = config['model_type']
+    epoch = config['epoch']
+    num_layers = config['num_layers']
+    max_length = config['max_length']
+    hidden_size = config['hidden_size']
+    batch_size = config['batch_size']
+    learning_rate = config['learning_rate']
+    acc = results['accuracy']
+    f1_score = results['f1_score']
+    recall = results['recall']
+    precision = results['precision']
+
+    # 创建或打开一个csv文件，准备写入数据
+    with open(output_csv, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        # 检查文件是否为空，如果为空，写入标题行
+        if file.tell() == 0:
+            writer.writerow(['model_type', 'epoch', 'num_layers', 'max_length', 'hidden_size',
+                             'batch_size', 'learning_rate', 'acc', 'f1_score', 'recall', 'precision'])
+        # 写入数据行
+        writer.writerow([model_type, epoch, num_layers, max_length, hidden_size,
+                         batch_size, learning_rate, acc, f1_score, recall, precision])
+
+
 
 
 

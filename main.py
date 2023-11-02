@@ -48,7 +48,7 @@ def choose_model(config):
     else:
         raise ValueError("model type not supported")
 
-def train_by_nn(config,verbose=True,save_model=True):
+def train_by_nn(config,verbose=True,save_model=False):
     if not os.path.isdir(config["model_path"]):
         os.mkdir(config["model_path"])
     train_data,_ = get_dataloader(config=config)
@@ -62,9 +62,13 @@ def train_by_nn(config,verbose=True,save_model=True):
     evaluator = BertEvaluator(model)
     valid_data,_ = get_dataloader(valid = True,config=config)
     test_data, _ = get_dataloader(train=False, config=config)
+
+    epochs = config["epoch"]
+    if Debug:
+        epochs = 1
     # train
     logger.info("****************start training**************")
-    for epoch in range(config["epoch"]):
+    for epoch in range(epochs):
         model.train()
 
         if verbose:
@@ -127,8 +131,8 @@ if __name__=='__main__':
     # train(Config)
     
     # grid search
-    models = ["bert_cnn", "bert"]
-    batch_sizes = [32, 64]
+    models = ["bert","bert_cnn"]
+    batch_sizes = [64, 32]
     learning_rates = [1e-3, 1e-4]
     max_lengths = [64,128,256]
     
@@ -144,6 +148,7 @@ if __name__=='__main__':
                     results = train_by_nn(Config)
                     save_results_to_json(results, Config)
                     save_results_to_csv(results, Config)
+                    logger.info("save file to json and csv")
 
     logger.info("****************finish training**************")
     
