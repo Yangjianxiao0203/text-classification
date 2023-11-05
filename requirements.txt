@@ -11,5 +11,6 @@ scikit-learn
 sagemaker
 transformers
 datasets
+peft
 
 json

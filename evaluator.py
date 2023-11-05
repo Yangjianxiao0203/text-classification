@@ -64,6 +64,8 @@ class BertEvaluator:
                 labels = y.to(self.device)
 
                 outputs = self.model(inputs)
+                if not isinstance(outputs, torch.Tensor):
+                    outputs = outputs.logits
                 _, predicted = torch.max(outputs.data, 1)
 
                 all_predictions.extend(predicted.cpu().numpy())

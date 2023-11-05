@@ -10,7 +10,7 @@ Config = {
     "bert_config": "bert_config.json",
 
     "encoding":"bert", #bayes will be bow, deep learning will be bert
-    "model_type":"bert_cnn_heavy",
+    "model_type":"bert", #using lora please run peft Trainner
     "model_with_bert":True,
 
     "epoch": 8,
@@ -20,6 +20,11 @@ Config = {
     "num_classes":6,
     "batch_size": 64,
     "learning_rate": 1e-4,
+
+    #for lora
+    "lora_r": 4,
+    "lora_alpha": 16,
+    "target_modules": ["query", "key","value"],
 
     "dropout":0.1,
     "pooling":"max",
@@ -31,6 +36,6 @@ Config = {
     "optimizer": "adam",
     "loss_fn": "cross_entropy",
 
-    "debug_mode":False,
+    "debug_mode":True,
 
 }

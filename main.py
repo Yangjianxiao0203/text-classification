@@ -121,9 +121,14 @@ def train(Config):
         return train_by_nn(Config)
 
 if __name__=='__main__':
+    # model = choose_model(Config)
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print(name)
+    #
     # train(Config)
     
-    # grid search
+    #grid search
     models = ["bert_cnn_heavy","bert","bert_lstm"]
     batch_sizes = [64, 32]
     learning_rates = [1e-4]

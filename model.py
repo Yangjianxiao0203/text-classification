@@ -1,7 +1,8 @@
 from sklearn.naive_bayes import MultinomialNB
 import torch
 import torch.nn as nn
-from transformers import BertModel,BertConfig
+from transformers import BertModel,BertConfig, BertForSequenceClassification
+from peftModel import get_lora_model
 import json
 
 def load_bert(pretrain_path, config_path=None):
