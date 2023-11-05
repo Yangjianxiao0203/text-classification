@@ -9,7 +9,7 @@ from evaluator import ML_Evaluator,BertEvaluator
 from loader import get_dataloader
 from model import *
 from optimizer import choose_optimizer,choose_loss
-from utils.save_functions import save_as_json, save_results_to_json, save_all_json_to_csv,save_results_to_csv
+from utils.save_functions import save_lora_results_to_csv
 from torch.utils.tensorboard import SummaryWriter
 from utils.logging import log_and_write_metrics
 
@@ -29,12 +29,12 @@ Debug = Config['debug_mode']
 def train(config):
     model = get_lora_model(config)
     #print trainnable parameters
-    print("trainable parameters:"+"*"*20)
-    for name, param in model.named_parameters():
-        if param.requires_grad:
-            print(name)
-    print("*"*20)
-    print(model.print_trainable_parameters())
+    # print("trainable parameters:"+"*"*20)
+    # for name, param in model.named_parameters():
+    #     if param.requires_grad:
+    #         print(name)
+    # print("*"*20)
+    logger.info(model.print_trainable_parameters())
     train_data, _ = get_dataloader(config=config)
     valid_data,_ = get_dataloader(valid = True,config=config)
     test_data, _ = get_dataloader(train=False, config=config)
@@ -81,4 +81,16 @@ def train(config):
 
 
 if __name__ =='__main__':
-    train(Config)
+    lora_r_list = [8,16,32]
+    lora_alpha_list = [8,16,32,64]
+    for lora_r in lora_r_list:
+        for lora_alpha in lora_alpha_list:
+            logger.info("start training lora model")
+            logger.info("lora_r: {}, lora_alpha: {}".format(lora_r, lora_alpha))
+            Config["lora_r"] = lora_r
+            Config["lora_alpha"] = lora_alpha
+            results = train(Config)
+            # save results as csv
+            save_lora_results_to_csv(results, Config)
+            logger.info("*" * 50)
+

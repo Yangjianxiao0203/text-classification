@@ -25,6 +25,7 @@ Config = {
     "lora_r": 4,
     "lora_alpha": 16,
     "target_modules": ["query", "key","value"],
+    "output_lora_csv":"lora_result.csv",
 
     "dropout":0.1,
     "pooling":"max",

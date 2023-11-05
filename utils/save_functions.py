@@ -100,6 +100,27 @@ def save_results_to_csv(results, config):
                          batch_size, learning_rate, acc, f1_score, recall, precision])
 
 
+def save_lora_results_to_csv(results,config):
+    output_lora_csv = config['output_lora_csv']
+    # 提取所需的参数
+    lora_r = config['lora_r']
+    lora_alpha = config['lora_alpha']
+
+    acc = results['accuracy']
+    f1_score = results['f1_score']
+    recall = results['recall']
+    precision = results['precision']
+
+    with open(output_lora_csv, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        # 检查文件是否为空，如果为空，写入标题行
+        if file.tell() == 0:
+            writer.writerow(['lora_r','lora_alpha','acc', 'f1_score', 'recall', 'precision'])
+        # 写入数据行
+        writer.writerow([lora_r,lora_alpha,acc, f1_score, recall, precision])
+    return
+
+
 
 
 
