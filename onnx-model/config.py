@@ -1,6 +1,6 @@
 Config = {
     "data_path":"../data",
-    "model_path":"./model",
+    "model_path":"../model",
     "model_name":"bert_cnn_heavy",
     "pretrained_model_name":"bert-base-uncased",
     "num_classes": 6,
