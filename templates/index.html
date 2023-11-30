@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotion Analysis</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .bar-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            position: relative;
+        }
+        .bar {
+            height: 20px;
+            background-color: #4CAF50;
+            border-radius: 4px;
+            position: relative;
+            z-index: 5;
+        }
+        .bar-text {
+            padding-left: 5px;
+            line-height: 20px;
+            z-index: 10;
+        }
+    </style>
+
+</head>
+<body>
+    <h2>Emotion Analysis</h2>
+    <form id="emotionForm">
+        <input type="text" id="textInput" placeholder="Enter text here">
+        <input type="submit" value="Analyze">
+    </form>
+    <br>
+    <table id="resultsTable" border="1">
+        <thead>
+            <tr>
+                <th>Emotion</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Results will be displayed here -->
+        </tbody>
+    </table>
+
+    <script>
+        $(document).ready(function() {
+            $('#emotionForm').on('submit', function(e) {
+                e.preventDefault();
+                var text = $('#textInput').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/process',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ text: text }),
+                    success: function(response) {
+                        var tableBody = $('#resultsTable tbody');
+                        tableBody.empty(); // 清空旧结果
+                        $.each(response, function(emotion, score) {
+                            var barWidth = score * 100; // 转换为百分比
+                            var barHtml = '<div class="bar-container">' +
+                                          '<div class="bar" style="width:' + barWidth + '%;"></div>' +
+                                          '<div class="bar-text">' +
+                                          emotion + ': ' + (score * 100).toFixed(2) + '%' +
+                                          '</div></div>';
+                            tableBody.append('<tr><td colspan="2">' + barHtml + '</td></tr>');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+
+</body>
+</html>
