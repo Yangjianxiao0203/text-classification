@@ -11,8 +11,8 @@ Config = {
     "lr": 1e-4,
     "dropout": 0.1,
     "optimizer": "adam",
-    "epoch": 10,
+    "epoch": 15,
 
     "seed": 42,
-    "debug_mode":True,
+    "debug_mode":False,
 }
