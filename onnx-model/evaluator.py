@@ -14,7 +14,7 @@ class Evaluator:
     def eval(self,dataloader):
         self.model.eval()
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        self.model.to(device)
+        # self.model.to(device)
         all_predictions = []
         all_true_labels = []
         for x,y in dataloader:

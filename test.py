@@ -1,4 +1,7 @@
-from config import Config
-from utils.save_functions import save_all_json_to_csv
-
-save_all_json_to_csv(Config["eval_path"], "result.csv")
+import torch
+import logging
+logging.basicConfig(level=logging.INFO, format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+print(device)
+logger.info("*********start loading model*********")

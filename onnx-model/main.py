@@ -25,7 +25,9 @@ def train(config,verbose=True,save_model=False):
     epochs = config["epoch"]
     if Debug:
         epochs = 1
+    logger.info("*********start loading model*********")
     model = BertCNNHeavy(config)
+    logger.info("*********start loading data*********")
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=config["lr"])
@@ -34,7 +36,8 @@ def train(config,verbose=True,save_model=False):
     train_loader = get_dataloader(config,split="train")
     valid_loader = get_dataloader(config,split="validation")
     test_loader = get_dataloader(config,split="test")
-    logger.info("start training")
+    logger.info("*********start training*********")
+    print("*****start training*****")
     for epoch in range(epochs):
         model.train()
         train_loss = []
@@ -51,16 +54,26 @@ def train(config,verbose=True,save_model=False):
 
             if verbose and idx % 10 == 0:
                 logger.info("epoch %d, batch %d, loss %f" % (epoch,idx,np.mean(train_loss)))
+                print("epoch %d, batch %d, loss %f" % (epoch,idx,np.mean(train_loss)))
             if Debug:
                 break
         writer.add_scalar("train_loss",np.mean(train_loss),epoch)
         results = evaluator.eval(valid_loader)
         logger.info("epoch %d, train loss %f, valid acc %f" % (epoch,np.mean(train_loss),results["accuracy"]))
+        print("epoch %d, train loss %f, valid acc %f" % (epoch,np.mean(train_loss),results["accuracy"]))
+    logger.info("start testing")
+    print("start testing")
+    results = evaluator.eval(test_loader)
+    logger.info("test acc %f" % (results["accuracy"]))
+    print("test acc %f" % (results["accuracy"]))
+    writer.close()
 
     if save_model:
         path = config["model_path"]
         if not os.path.isdir(path):
             os.mkdir(path)
+        # transform model to cpu
+        model.to("cpu")
         torch.save(model.state_dict(),os.path.join(path,"model_%s.pt"%(config["model_name"])))
 
     return model

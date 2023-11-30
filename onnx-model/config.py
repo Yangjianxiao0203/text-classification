@@ -1,6 +1,6 @@
 Config = {
     "data_path":"../data",
-    "model_path":"../model",
+    "model_path":"./model",
     "model_name":"bert_cnn_heavy",
     "pretrained_model_name":"bert-base-uncased",
     "num_classes": 6,
@@ -11,7 +11,7 @@ Config = {
     "lr": 1e-4,
     "dropout": 0.1,
     "optimizer": "adam",
-    "epoch": 15,
+    "epoch": 1,
 
     "seed": 42,
     "debug_mode":False,

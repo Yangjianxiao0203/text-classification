@@ -20,6 +20,7 @@ class BertCNNHeavy(nn.Module):
             self.conv_stack.append(nn.BatchNorm1d(self.hidden_size,eps=1e-05))
             self.conv_stack.append(self.dropout)
         self.classify = nn.Linear(self.hidden_size,self.num_classes)
+        self.pooling = nn.MaxPool1d(config["max_length"])
 
     def get_encoder(self,config):
         encoder = BertModel.from_pretrained(config["pretrained_model_name"])
@@ -31,13 +32,14 @@ class BertCNNHeavy(nn.Module):
 
 
     def forward(self,x):
+        # x: batch x seq_len
         x = self.encoder(x)
         x= x.last_hidden_state # batch x seq_len x hidden_size
         x = x.transpose(1,2) # batch x hidden_size x seq_len
         for conv in self.conv_stack:
             x = conv(x)
-        pooling = nn.MaxPool1d(x.size(-1))
-        x = pooling(x).squeeze(-1) # batch x hidden_size
+        # pooling = nn.MaxPool1d(x.size(-1))
+        x = self.pooling(x).squeeze(-1) # batch x hidden_size
         y_pred = self.classify(x) # batch x num_classes
         return y_pred
 

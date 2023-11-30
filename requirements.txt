@@ -14,3 +14,7 @@ datasets
 peft
 
 json
+
+onnx
+onnxscript
+onnxruntime
