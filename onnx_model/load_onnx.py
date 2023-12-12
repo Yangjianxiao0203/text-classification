@@ -28,7 +28,7 @@ def load_and_run_onnx_model(onnx_model_path, input_data):
 
     return outputs[0].squeeze()
 
-def classify_text(text,model_path):
+def aclassify_text(text,model_path):
     encoding = tokenizer.encode_plus(
         text,
         add_special_tokens=True,
