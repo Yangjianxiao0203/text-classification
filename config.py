@@ -4,20 +4,31 @@ Config = {
     "valid_dir":"./data/validation",
     "model_path":"./output",
     "eval_path":"./eval",
+    "output_csv":"result.csv",
+
     "pretrain_model_path": r"bert-base-uncased",
+    "bert_config": "bert_config.json",
 
-
-    "encoding":"bert", #bayes will be bow
-    "model_type":"bert_cnn",
+    "encoding":"bert", #bayes will be bow, deep learning will be bert
+    "model_type":"bert", #using lora please run peft Trainner
     "model_with_bert":True,
 
-    "epoch": 10,
-    "num_layers": 2,
-    "max_length": 256,
-    "hidden_size": 128,
+    "epoch": 8,
+    "num_layers": 1,
+    "max_length": 64,
+    "hidden_size": 128, #if user bert, then this will be bert hidden size
     "num_classes":6,
     "batch_size": 64,
     "learning_rate": 1e-4,
+
+    #for lora
+    "lora_r": 4,
+    "lora_alpha": 16,
+    "target_modules": ["query", "key","value"],
+    "output_lora_csv":"lora_result.csv",
+
+    "dropout":0.1,
+    "pooling":"max",
     "seed":768,
 
     #for only cnn related
@@ -25,5 +36,7 @@ Config = {
 
     "optimizer": "adam",
     "loss_fn": "cross_entropy",
+
+    "debug_mode":False,
 
 }

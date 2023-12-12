@@ -1,0 +1,35 @@
+{
+    "config": {
+        "train_dir": "./data/train",
+        "test_dir": "./data/test",
+        "valid_dir": "./data/validation",
+        "model_path": "./output",
+        "eval_path": "./eval",
+        "output_csv": "result.csv",
+        "pretrain_model_path": "bert-base-uncased",
+        "bert_config": "bert_config.json",
+        "encoding": "bert",
+        "model_type": "bert_cnn_heavy",
+        "model_with_bert": true,
+        "epoch": 8,
+        "num_layers": 2,
+        "max_length": 64,
+        "hidden_size": 128,
+        "num_classes": 6,
+        "batch_size": 32,
+        "learning_rate": 0.0001,
+        "dropout": 0.1,
+        "pooling": "max",
+        "seed": 768,
+        "kernel_size": 3,
+        "optimizer": "adam",
+        "loss_fn": "cross_entropy",
+        "debug_mode": false
+    },
+    "results": {
+        "f1_score": 0.8841009646505052,
+        "recall": 0.8834163759027996,
+        "precision": 0.8857962189050211,
+        "accuracy": 0.917
+    }
+}
